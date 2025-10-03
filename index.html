@@ -826,15 +826,50 @@
             document.body.style.overflow = '';
         }
         
-        // Process markdown
+        // Process markdown - updated to preserve line breaks in 形象理解 sections
         function processMarkdown(content) {
-            return content
-                .replace(/^# (.+)$/gm, '<h1>$1</h1>')
-                .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-                .split('\n\n')
-                .map(p => p.trim() ? `<p>${p.replace(/\n/g, ' ')}</p>` : '')
-                .join('');
+            // First handle the 形象理解 sections specially
+            const parts = content.split(/🎨\s*\*\*形象理解\*\*/);
+            
+            if (parts.length > 1) {
+                // Process the main content
+                let mainContent = parts[0]
+                    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+                    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+                    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                    .split('\n\n')
+                    .map(p => p.trim() ? `<p>${p.replace(/\n/g, ' ')}</p>` : '')
+                    .join('');
+                
+                // Process the 形象理解 section - preserve line breaks
+                let visualSection = parts[1].trim();
+                // Style the visual understanding section with line breaks
+                visualSection = `
+                    <div style="background: var(--surface); border-radius: 8px; padding: 12px; margin-top: 16px; text-align: center;">
+                        <div style="font-size: 14px; color: var(--text-light); margin-bottom: 8px;">
+                            🎨 <strong style="color: var(--primary);">形象理解</strong>
+                        </div>
+                        ${visualSection.split('\n').map(line => 
+                            `<div style="font-size: ${line.includes('×') || line.includes('→') || line.includes('=') ? '20px' : '14px'}; 
+                                        margin: 4px 0; 
+                                        color: ${line.includes('×') || line.includes('→') || line.includes('=') ? 'var(--text)' : 'var(--text-light)'};">
+                                ${line.trim()}
+                            </div>`
+                        ).join('')}
+                    </div>
+                `;
+                
+                return mainContent + visualSection;
+            } else {
+                // No 形象理解 section, process normally
+                return content
+                    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+                    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+                    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                    .split('\n\n')
+                    .map(p => p.trim() ? `<p>${p.replace(/\n/g, ' ')}</p>` : '')
+                    .join('');
+            }
         }
         
         // Toggle filter panel
