@@ -261,7 +261,7 @@
             transform: scale(0.98);
         }
         
-        /* Modal */
+        /* Modal - improved scroll handling */
         .modal {
             display: none;
             position: fixed;
@@ -279,6 +279,8 @@
             display: flex;
             align-items: flex-start;
             justify-content: center;
+            padding-top: 40px;
+            padding-bottom: 40px;
         }
         
         .modal-content {
@@ -816,8 +818,19 @@
             
             document.getElementById('modalTitle').textContent = concept.name;
             document.getElementById('modalBody').innerHTML = processMarkdown(concept.description);
+            
+            // Reset scroll position to top before showing
+            const modalBody = document.getElementById('modalBody');
+            modalBody.scrollTop = 0;
+            
+            // Show modal
             document.getElementById('modal').classList.add('active');
             document.body.style.overflow = 'hidden';
+            
+            // Ensure modal content starts at top (backup method)
+            setTimeout(() => {
+                modalBody.scrollTop = 0;
+            }, 10);
         }
         
         // Close modal
